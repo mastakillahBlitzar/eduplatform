@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Promedio estudiante</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+</head>
+
+<body class="main-body">
+    <header>
+        <h1> {{titulo}}</h1>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/index">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/vernotas">Ver notas</a>
+                </li>
+
+                {{#if sesion}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/actualizar">Actualizar</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="/salir" method="GET">
+            <h3>{{nombre}}</h3>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Salir</button>
+            </form>
+                {{else}}
+</ul>
+            <form class="form-inline my-2 my-lg-0" action="/ingresar" method="POST">
+                <input class="form-control mr-sm-2" type="text" name="usuario" placeholder="Nombre de usuario">
+                <input class="form-control mr-sm-2" type="password" name="password" placeholder="contraseña">
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Ingresar</button>
+            </form>
+                {{/if}}
+
+        </div>
+    </nav>

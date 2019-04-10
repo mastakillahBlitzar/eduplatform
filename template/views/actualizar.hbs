@@ -1,0 +1,27 @@
+{{>header}}
+<form action="/actualizar" method="POST" >
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Nombre</label>
+            <input class="form-control" type="text" name="nombre" value="{{nombre}}" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Matemáticas</label>
+            <input class="form-control" type="number" name="matematicas" value="{{matematicas}}" required>
+        </div>
+        <div class="col">
+            <label for="exampleInputEmail1">Ingles</label>
+            <input class="form-control" type="number" name="ingles" value="{{ingles}}" required>
+        </div>
+        <div class="col">
+            <label for="exampleInputEmail1">Programación</label>
+            <input class="form-control" type="number" name="programacion" value="{{programacion}}" required>
+        </div>
+    </div>
+    <div class="form-group mb-2">
+        <button>Guardar</button>
+    </div>  
+</form>
+{{>footer}}
