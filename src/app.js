@@ -38,6 +38,17 @@ app.use((req, res, next) => {
             } else {
                 console.log(decoded);
                 res.locals.sesion = true;
+
+                if(decoded.data.rol == 'coordinador')
+                    res.locals.isCoordinador = true;
+                else
+                    res.locals.isCoordinador = false;
+
+                if(decoded.data.rol == 'aspirante')
+                    res.locals.isAspirante = true;
+                else
+                    res.locals.isAspirante = false;
+
                 res.locals.nombre = decoded.data.nombre;
                 req.usuario = decoded.data._id;
             }

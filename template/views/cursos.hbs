@@ -1,0 +1,40 @@
+{{>header}}
+{{#if isCoordinador}}
+<form action="/cursos" method="POST" >
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Nombre</label>
+            <input class="form-control" type="text" name="nombre" required>
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Descripción</label>
+            <textarea class="form-control" type="" name="descripcion" required></textarea>
+        </div>    
+        <div class="col">
+            <label for="exampleInputEmail1">Valor</label>
+            <input class="form-control" type="number" name="valor" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Modalidad</label>
+            <select class="form-control" name="modalidad" id="modalidad">
+                <option disabled selected value> -- select an option -- </option>
+                <option value="presencial">Presencial</option>
+                <option value="virtual">Virtual</option>
+            </select>
+        </div>
+        <div class="col">
+            <label for="exampleInputEmail1">Intensidad Horaria</label>
+            <input class="form-control" type="number" name="intensidadHoraria">
+        </div>
+    </div>
+    <div class="form-group mb-2">
+        <button>Agregar curso</button>
+    </div>  
+</form>
+{{/if}}
+{{>footer}}
