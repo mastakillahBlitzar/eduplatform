@@ -1,0 +1,43 @@
+{{>header}}
+<form action="/inscribir" method="POST" >
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Documento de identidad</label>
+            <input class="form-control" type="number" name="documento" required>
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Correo electrónico</label>
+            <input class="form-control" type="email" name="correo" required>
+        </div>
+        <div class="col">
+            <label for="exampleInputEmail1">Password</label>
+            <input class="form-control" type="password" name="password" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Nombre</label>
+            <input class="form-control" type="text" name="nombre" required></input>
+        </div>    
+        <div class="col">
+            <label for="exampleInputEmail1">Teléfono</label>
+            <input class="form-control" type="number" name="telefono" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <label for="exampleInputEmail1">Rol</label>
+            <select class="form-control" name="idCurso" id="idCurso">
+                <option value='aspirante'>Aspirante</option>
+                <option value='coordinador'>Coordinador</option>
+            </select>
+        </div>
+        <div class="col">
+            <button>Guardar</button>
+        </div>
+    </div>
+</form>
+{{>footer}}
