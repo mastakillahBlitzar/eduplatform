@@ -1,0 +1,28 @@
+{
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "PORT": {
+      "required": true
+    },
+    "URLDB": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "eduplatform",
+  "scripts": {
+    "pr-predestroy": "npm i"
+  },
+  "stack": "heroku-18"
+}
