@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const hbs = require('hbs');
 const Estudiante = require('../models/estudiante');
+const Usuario = require('../models/usuario');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -156,10 +157,58 @@ app.get('/salir', (req, res) => {
     res.redirect('/');
 })
 
+
+app.get('/inscribir', (req, res) => {
+    console.log('entra al inscribir');
+    
+    return res.render('inscribir', {titulo : 'Inscribir estudiante a curso'});
+});
+
+app.post('/inscribir', (req, res) => {
+    Usuario.findOne({documentoIdentidad : req.body.documento}, (err, resultado) => {
+        if(err) {
+            return res.render('indexpost', {
+                titulo: 'Error 404'
+            });
+        }
+
+        if(resultado){
+            return res.render('indexpost', {
+                titulo : "el usuario ya existe"
+            })
+        }
+
+        let usuario  = new Usuario({
+            'documentoIdentidad' : req.body.documento,
+            'nombre' : req.body.nombre,
+            'correo' : req.body.correo,
+            'telefono' : req.body.telefono,
+            'rol' : req.body.rol,
+            'password': bcrypt.hashSync(req.body.password, 10)
+        });
+    
+        usuario.save((err, resultado) => {
+            console.log('ingreso a guardar el usuario');
+            
+            if (err) {
+                res.render('indexpost', {
+                    mostrar: err
+                });
+            }
+    
+            res.render('indexpost', {
+                listado: resultado
+            })
+        });
+    });
+}); 
+
+
 app.get('*', (req, res) => {
     res.render('indexpost', {
         titulo: 'Error 404'
     });
 });
+
 
 module.exports = app;
