@@ -113,8 +113,10 @@ app.post('/eliminar', (req, res) => {
         });
 });
 
-app.post('/ingresar', (req, res) => {
-    Estudiante.findOne({ nombre: req.body.usuario }, (err, resultado) => {
+app.post('/ingresar', (req, res) => {   
+
+
+    Usuario.findOne({ correo: req.body.correo }, (err, resultado) => {
         if (err) {
             return console.log('error');
         }
@@ -122,14 +124,11 @@ app.post('/ingresar', (req, res) => {
         if (!!resultado) {
             if (bcrypt.compareSync(req.body.password, resultado.password)) {
 
-
-                /* req.session.usuario = resultado._id;
-                req.session.nombre = resultado.nombre; */
-
                 const token = jwt.sign({
                     data: resultado
                 }, 'tdea-virtual', { expiresIn: '1h' });
                 localStorage.setItem('token', token);
+                localStorage.setItem('rol',  resultado.rol);
                 res.render('ingresar', {
                     mensaje: 'Bienvenido ' + resultado.nombre,
                     //sesion: true,
@@ -174,7 +173,7 @@ app.post('/inscribir', (req, res) => {
 
         if(resultado){
             return res.render('indexpost', {
-                titulo : "el usuario ya existe"
+                titulo : 'el usuario ya existe'
             })
         }
 
@@ -188,16 +187,14 @@ app.post('/inscribir', (req, res) => {
         });
     
         usuario.save((err, resultado) => {
-            console.log('ingreso a guardar el usuario');
-            
             if (err) {
-                res.render('indexpost', {
+                return res.render('indexpost', {
                     mostrar: err
                 });
             }
     
-            res.render('indexpost', {
-                listado: resultado
+            return res.render('indexpost', {
+                title: 'Bienvenido ' + req.body.nombre
             })
         });
     });
