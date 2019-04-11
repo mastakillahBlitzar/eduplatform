@@ -31,22 +31,22 @@ app.use((req, res, next) => {
     const token = localStorage.getItem('token');
     if(token) {
         jwt.verify(token, 'tdea-virtual', (err, decoded) => {
+
             if(err) {
-                return console.log(err);
+                localStorage.removeItem('token');
+                console.log(err);
+            } else {
+                console.log(decoded);
+                res.locals.sesion = true;
+                res.locals.nombre = decoded.data.nombre;
+                req.usuario = decoded.data._id;
             }
-            console.log(decoded);
-            res.locals.sesion = true;
-            res.locals.nombre = decoded.data.nombre;
-            req.usuario = decoded.data._id;
+            
             return next();
         });
     } else {
         next();
     }
-    /* if(req.session.usuario) {
-        res.locals.sesion = true
-        res.locals.nombre = req.session.nombre
-    } */
 });
 
 app.use(bodyParser.urlencoded({extended : false}));
