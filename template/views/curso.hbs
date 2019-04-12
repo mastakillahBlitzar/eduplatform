@@ -45,6 +45,9 @@
       <th scope="col">Intensidad</th>
       <th scope="col">Modalidad</th>
       <th scope="col"></th>
+      {{#if isCoordinador}}
+        <th scope="col"></th>
+      {{/if}}
     </tr>
   </thead>
   <tbody>
@@ -58,6 +61,11 @@
           <td>
               <form action="/cursoTerminar" method="POST" >
                 <button type="submit" class="btn btn-danger" name="id" value="{{_id}}">Terminar</button>
+              </form>
+            </td>
+            <td>
+              <form action="/verInscritos" method="POST" >
+                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
               </form>
           </td>
           {{/if}}

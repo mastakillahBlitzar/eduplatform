@@ -1,0 +1,22 @@
+{{>header}}
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Cedula</th>
+      <th scope="col">Nombre</th>
+    </tr>
+  </thead>
+  <tbody>
+      {{#each incripcionArray}}
+      <tr>
+          <td>{{documentoIdentidad}}</td>
+          <td>{{nombre}}</td>
+      </tr>
+      {{/each}}
+  </tbody>
+</table>
+
+  <form action="/curso" method="GET" >
+    <button type="submit" class="btn btn-primary">Volver</button>
+  </form>
+{{>footer}}

@@ -262,15 +262,10 @@ app.post('/curso', (req, res) => {
     let modalidad = '';
     let body = JSON.parse(JSON.stringify(req.body));
 
-    console.log(body.hasOwnProperty('modalidad'));
-    
-
     if(body.hasOwnProperty('modalidad')){
         console.log('tiene modalidad');        
          modalidad = body.modalidad;
     }
-
-    console.log(body);
 
     let curso = new Curso({
         nombre: body.nombre,
@@ -369,6 +364,57 @@ app.post('/cursoInscribir', (req, res) => {
                 mensaje : 'El ususario ha sido inscrito correctamente'
             });
         })
+    });
+});
+
+
+app.post('/verInscritos', (req, res) => {
+    var estudiantesInscritos = [];
+    Curso.findOne({_id : req.body.id}, function(err, curso) {
+        Inscripcion.find({idCurso : req.body.id}, function(err, inscripciones) {
+            if(err){
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'Ocurrió un error en la consulta de los estudiantes inscritos'
+                });
+            }
+
+            if(!Object.keys(inscripciones).length){
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'No hay estudiantes inscritos al curso'
+                });
+            }
+            
+            function recursive(items, index) {
+                Usuario.findOne({_id : items[index].idUsuario}, (err, usuario) => {
+                    estudiantesInscritos.push({
+                        documentoIdentidad : usuario.documentoIdentidad,
+                        nombre : usuario.nombre
+                    });
+                    
+                    index++;
+                    
+                    if(index < inscripciones.length){
+                        recursive(items, index)
+                    } else {
+                        return res.render('estudiantesInscritos', {
+                            titulo : 'Estudiantes inscritos a: ' + curso.nombre,
+                            alert : false,
+                            alertType : 'alert-success',
+                            incripcionArray : estudiantesInscritos,
+                            mensaje : 'El ususario ha sido inscrito correctamente'
+                        });
+                    }
+                });
+            }
+            
+            recursive(inscripciones, 0);
+        });
     });
 });
 
