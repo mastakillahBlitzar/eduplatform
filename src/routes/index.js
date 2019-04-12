@@ -5,6 +5,7 @@ const hbs = require('hbs');
 const Estudiante = require('../models/estudiante');
 const Usuario = require('../models/usuario');
 const Curso = require('../models/curso');
+const Inscripcion = require('../models/inscripcion');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -311,7 +312,7 @@ app.post('/cursoTerminar', (req, res) => {
                     titulo : 'Curso', 
                     alert : true,
                     alertType : 'alert-danger', 
-                    mensaje : 'Ocurrió un erro durante la actualización. ' + err
+                    mensaje : 'Ocurrió un error durante la actualización. ' + err
                 });
             }
 
@@ -327,7 +328,48 @@ app.post('/cursoTerminar', (req, res) => {
 });
 
 app.post('/cursoInscribir', (req, res) => {
-    console.log(req.body); 
+    Inscripcion.findOne({ idCurso : req.body.id, idUsuario : req.usuario },(err, inscripcion) =>{
+        if(err){
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-danger', 
+                mensaje : 'No se pudo hacer la inscripción del usuario. ' + err
+            });
+        }
+
+        if(!!inscripcion){
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-warning', 
+                mensaje : 'El usuario ya está iscrito.'
+            });
+        }
+
+        inscripcion = new Inscripcion({
+            idCurso : req.body.id,
+            idUsuario : req.usuario
+        });
+
+        inscripcion.save((err, inscrito) => {
+            if(err){
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'No se pudo hacer la inscripción del usuario. ' + err
+                });
+            }
+
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-success', 
+                mensaje : 'El ususario ha sido inscrito correctamente'
+            });
+        })
+    });
 });
 
 app.get('*', (req, res) => {
