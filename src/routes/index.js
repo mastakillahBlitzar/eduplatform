@@ -4,6 +4,7 @@ const path = require('path');
 const hbs = require('hbs');
 const Estudiante = require('../models/estudiante');
 const Usuario = require('../models/usuario');
+const Curso = require('../models/curso');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -113,8 +114,6 @@ app.post('/eliminar', (req, res) => {
 });
 
 app.post('/ingresar', (req, res) => {   
-
-
     Usuario.findOne({ correo: req.body.correo }, (err, resultado) => {
         if (err) {
             return console.log('error');
@@ -126,55 +125,88 @@ app.post('/ingresar', (req, res) => {
                 const token = jwt.sign({
                     data: resultado
                 }, 'tdea-virtual', { expiresIn: '1h' });
+
                 localStorage.setItem('token', token);
-                localStorage.setItem('rol',  resultado.rol);
-                res.render('ingresar', {
-                    mensaje: 'Bienvenido ' + resultado.nombre,
-                    //sesion: true,
-                    nombre: resultado.nombre
+
+                res.locals.sesion = true;
+
+                if(resultado.rol == 'coordinador')
+                    res.locals.isCoordinador = true;
+                else
+                    res.locals.isCoordinador = false;
+
+                if(resultado.rol == 'aspirante')
+                    res.locals.isAspirante = true;
+                else
+                    res.locals.isAspirante = false;
+
+                res.locals.nombre = resultado.nombre;
+                req.usuario = resultado._id;
+
+
+                return res.render('index', {
+                    titulo: 'Inicio',
+                    nombre: resultado.nombre,
+                    alert : true,
+                    alertType : 'alert-success', 
+                    mensaje : 'Bienvenido ' + resultado.nombre
                 });
             }
-            return res.render('ingresar', {
-                mensaje: 'password incorrecto',
+
+            return res.render('index', {
+                Titulo: 'Inicio',
+                alert : true,
+                alertType : 'alert-danger', 
+                mensaje : 'El usuario no existe.'
             });
         }
 
-        return res.render('ingresar', {
+        return res.render('index', {
             mensaje: 'usuario no existe',
         });
     });
 });
 
 app.get('/salir', (req, res) => {
-    /* req.session.destroy((err) => {
-        if (err) {
-            return console.log(err);
-        }
-    }); */
     localStorage.removeItem('token');
     res.redirect('/');
 })
 
 
-app.get('/inscribir', (req, res) => {
-    console.log('entra al inscribir');
-    
-    return res.render('inscribir', {titulo : 'Inscribir estudiante a curso'});
+app.get('/usuario', (req, res) => {
+    return res.render('usuario', 
+    {
+        titulo : 'Crear usuario', 
+        alert : false,
+        alertType : 'alert-primary', 
+        mensaje : 'Este es el mensaje que se debe mostrar en el inicio'
+    });
 });
 
-app.post('/inscribir', (req, res) => {
+app.post('/usuario', (req, res) => {
+
     Usuario.findOne({documentoIdentidad : req.body.documento}, (err, resultado) => {
         if(err) {
             return res.render('indexpost', {
                 titulo: 'Error 404'
             });
-        }
+        }   
 
         if(resultado){
             return res.render('indexpost', {
-                titulo : 'el usuario ya existe'
-            })
+                titulo : 'Crear usuario', 
+                alert : true,
+                alertType : 'alert-danger', 
+                mensaje : 'El usuario ya existe en la base de datos. Por favor, compruebe el número de cédula.',
+                'documentoIdentidad' : req.body.documento,
+                'nombre' : req.body.nombre,
+                'correo' : req.body.correo,
+                'telefono' : req.body.telefono,
+                'rol' : req.body.rol,
+                'password': bcrypt.hashSync(req.body.password, 10)
+            });
         }
+
 
         let usuario  = new Usuario({
             'documentoIdentidad' : req.body.documento,
@@ -184,21 +216,119 @@ app.post('/inscribir', (req, res) => {
             'rol' : req.body.rol,
             'password': bcrypt.hashSync(req.body.password, 10)
         });
-    
+
         usuario.save((err, resultado) => {
             if (err) {
-                return res.render('indexpost', {
-                    mostrar: err
+                return res.render('usuario', {
+                    titulo : 'Crear usuario', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'Ocurrió un errro mientras se creaba el usuario. ' + err
                 });
             }
     
-            return res.render('indexpost', {
-                title: 'Bienvenido ' + req.body.nombre
+            return res.render('usuario', {
+                titulo : 'Crear usuario', 
+                alert : true,
+                alertType : 'alert-success', 
+                mensaje : 'Se ha creado el usuario correctamente.'
             })
         });
     });
 }); 
 
+
+app.get('/curso', (req, res) => {
+    Curso.find({estado : true}, function(err, cursos) {
+        if(err){
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-danger', 
+                mensaje : 'Ocurrió un error en la consulta de los cursos'
+            });
+        }
+
+        return res.render('curso', {
+            titulo : 'Curso', 
+            alert : false,
+            cursosArray : cursos
+        }); 
+    });
+});
+
+app.post('/curso', (req, res) => {
+    let modalidad = '';
+    let body = JSON.parse(JSON.stringify(req.body));
+
+    console.log(body.hasOwnProperty('modalidad'));
+    
+
+    if(body.hasOwnProperty('modalidad')){
+        console.log('tiene modalidad');        
+         modalidad = body.modalidad;
+    }
+
+    console.log(body);
+
+    let curso = new Curso({
+        nombre: body.nombre,
+        descripcion: body.descripcion,
+        valor: body.valor,
+        intensidadHoraria: body.intensidadHoraria,
+        modalidad : modalidad 
+    });
+    
+    curso.save((err, curso) => {
+        if(err){
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-danger', 
+                mensaje : 'Ocirrió un error mientras se creaba el curso. ' + err
+            });
+        }
+
+        return res.render('curso', {
+            titulo : 'Curso', 
+            alert : true,
+            alertType : 'alert-success', 
+            mensaje : 'Se creó el curso correctamente'
+        });
+    });
+});
+
+app.get('/cursoTerminar', (req, res) => {
+    return res.redirect('/curso');
+});
+
+
+app.post('/cursoTerminar', (req, res) => {
+    Curso.findOneAndUpdate({ id: req.body._id },
+        {$set:{ estado : false }}, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
+            if (err) {
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'Ocurrió un erro durante la actualización. ' + err
+                });
+            }
+
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : true,
+                alertType : 'alert-success', 
+                mensaje : 'Se terminó el curso correctamente'
+            });
+        });
+
+    console.log(req.body); 
+});
+
+app.post('/cursoInscribir', (req, res) => {
+    console.log(req.body); 
+});
 
 app.get('*', (req, res) => {
     res.render('indexpost', {

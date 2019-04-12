@@ -18,7 +18,7 @@ const cursoSchema = new Schema({
     },
     modalidad : {
         type : String,
-        required : true,
+        required : false,
         default : '',
         enum: {values: ['','virtual', 'presencial'], message: 'No es valido'}
     },

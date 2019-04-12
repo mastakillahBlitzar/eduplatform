@@ -31,12 +31,10 @@ app.use((req, res, next) => {
     const token = localStorage.getItem('token');
     if(token) {
         jwt.verify(token, 'tdea-virtual', (err, decoded) => {
-
+            
             if(err) {
                 localStorage.removeItem('token');
-                console.log(err);
             } else {
-                console.log(decoded);
                 res.locals.sesion = true;
 
                 if(decoded.data.rol == 'coordinador')

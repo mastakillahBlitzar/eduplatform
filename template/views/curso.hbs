@@ -1,6 +1,6 @@
 {{>header}}
 {{#if isCoordinador}}
-<form action="/cursos" method="POST" >
+<form action="/curso" method="POST" >
     <div class="form-row">
         <div class="col">
             <label for="exampleInputEmail1">Nombre</label>
@@ -37,4 +37,39 @@
     </div>  
 </form>
 {{/if}}
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Nombre</th>
+      <th scope="col">Descripción</th>
+      <th scope="col">Intensidad</th>
+      <th scope="col">Modalidad</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+      {{#each cursosArray}}
+      <tr>
+          <td>{{nombre}}</td>
+          <td>{{descripcion}}</td>
+          <td>{{intensidad}}</td>
+          <td>{{modalidad}}</td>
+          {{#if ../isCoordinador}}
+          <td>
+              <form action="/cursoTerminar" method="POST" >
+                <button type="submit" class="btn btn-danger" name="id" value="{{_id}}">Terminar</button>
+              </form>
+          </td>
+          {{/if}}
+          {{#if ../isAspirante}}
+          <td>
+              <form action="/cursoInscribir" method="POST" >
+                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
+              </form>
+          </td>
+          {{/if}}
+      </tr>
+      {{/each}}
+  </tbody>
+</table>
 {{>footer}}
