@@ -394,7 +394,8 @@ app.post('/verInscritos', (req, res) => {
                 Usuario.findOne({_id : items[index].idUsuario}, (err, usuario) => {
                     estudiantesInscritos.push({
                         documentoIdentidad : usuario.documentoIdentidad,
-                        nombre : usuario.nombre
+                        nombre : usuario.nombre,
+                        inscripcion : items[index]._id
                     });
                     
                     index++;
@@ -414,6 +415,27 @@ app.post('/verInscritos', (req, res) => {
             }
             
             recursive(inscripciones, 0);
+        });
+    });
+});
+
+app.post('/eliminarInscripcion', (req, res) => {
+    Inscripcion.remove({_id : req.doby.id}, (err) => {
+
+        if(err){
+            return res.render('curso', {
+                titulo : 'Curso',
+                alert : false,
+                alertType : 'alert-danger',
+                mensaje : 'Ocurrió un error al borrar la inscripción.'
+            });
+        }
+        return res.render('curso', {
+            titulo : 'curso',
+            alert : false,
+            alertType : 'alert-success',
+            incripcionArray : estudiantesInscritos,
+            mensaje : 'Se eliminó la inscripción'
         });
     });
 });

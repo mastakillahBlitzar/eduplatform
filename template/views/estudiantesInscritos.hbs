@@ -4,6 +4,9 @@
     <tr>
       <th scope="col">Cedula</th>
       <th scope="col">Nombre</th>
+      {{#if isCoordinador}}
+        <th scope="col"></th>
+      {{/if}}
     </tr>
   </thead>
   <tbody>
@@ -11,6 +14,11 @@
       <tr>
           <td>{{documentoIdentidad}}</td>
           <td>{{nombre}}</td>
+          <td>
+            <form action="/eliminarInscripcion" method="POST" >
+              <button type="submit" class="btn btn-danger" name="id" value="{{inscripcion}}">Eliminar</button>
+            </form>
+          </td>
       </tr>
       {{/each}}
   </tbody>
