@@ -420,7 +420,10 @@ app.post('/verInscritos', (req, res) => {
 });
 
 app.post('/eliminarInscripcion', (req, res) => {
-    Inscripcion.remove({_id : req.doby.id}, (err) => {
+
+    console.log(req.body);
+    
+    Inscripcion.deleteOne({ _id : req.body.id}, (err) => {
 
         if(err){
             return res.render('curso', {
@@ -434,7 +437,6 @@ app.post('/eliminarInscripcion', (req, res) => {
             titulo : 'curso',
             alert : false,
             alertType : 'alert-success',
-            incripcionArray : estudiantesInscritos,
             mensaje : 'Se eliminó la inscripción'
         });
     });
