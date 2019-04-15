@@ -30,7 +30,7 @@ const usuarioSchema = new Schema({
         type : String,
         required : true,
         default : 'aspirante',
-        enum: {values: ['aspirante', 'coordinador'], message: 'No es valido'}
+        enum: {values: ['aspirante', 'coordinador', 'docente'], message: 'No es valido'}
     },
 });
 

@@ -30,6 +30,10 @@ const cursoSchema = new Schema({
     estado : {
         type : Boolean,
         default:  true
+    },
+    docente : {
+        type : String,
+        default: ''
     }
 });
 

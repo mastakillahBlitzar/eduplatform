@@ -240,7 +240,15 @@ app.post('/usuario', (req, res) => {
 
 
 app.get('/curso', (req, res) => {
+    cursoMethod(req, res);
+});
+
+function cursoMethod(req, res){
     Curso.find({estado : true}, function(err, cursos) {
+
+        console.log('cursos:' + cursos);
+        
+
         if(err){
             return res.render('curso', {
                 titulo : 'Curso', 
@@ -250,13 +258,64 @@ app.get('/curso', (req, res) => {
             });
         }
 
-        return res.render('curso', {
-            titulo : 'Curso', 
-            alert : false,
-            cursosArray : cursos
-        }); 
+        if(res.locals.isAspirante){
+            let incripcionCursos = [];
+
+            Inscripcion.find({idUsuario : req.usuario}).exec((err, inscripciones) => {
+
+                if(err) {
+                    return res.render('curso', {
+                        titulo : 'Curso', 
+                        alert : false,
+                        cursosArray : cursos
+                    });
+                }
+
+               function recursividadInscripciones(arreglo, index){
+                Curso.findOne({_id : arreglo[index].idCurso}).exec((err, cursoEncontrado) => {
+                    if(err){
+                        return console.log('error en la consulta');    
+                    }
+
+                    cursoEncontrado.idInscripcion = arreglo[index]._id;
+
+                    incripcionCursos.push(cursoEncontrado); 
+                    
+                    index++;
+
+                    if(index < arreglo.length){
+                        recursividadInscripciones(arreglo, index);
+                    } else {
+                        return res.render('curso', {
+                            titulo : 'Curso', 
+                            alert : false,
+                            cursosArray : cursos,
+                            cursosInscritosArray : incripcionCursos
+                        });
+                    }
+                });
+             };
+
+             if(inscripciones.length == 0){
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : false,
+                    cursosArray : cursos,
+                    cursosInscritosArray : []
+                });
+             } else 
+                recursividadInscripciones(inscripciones, 0);
+             
+           }); 
+        } else {
+            return res.render('curso', {
+                titulo : 'Curso', 
+                alert : false,
+                cursosArray : cursos
+            });
+        } 
     });
-});
+}
 
 app.post('/curso', (req, res) => {
     let modalidad = '';
@@ -294,32 +353,44 @@ app.post('/curso', (req, res) => {
     });
 });
 
-app.get('/cursoTerminar', (req, res) => {
+app.get('/cursoIniciar', (req, res) => {
     return res.redirect('/curso');
 });
 
 
-app.post('/cursoTerminar', (req, res) => {
-    Curso.findOneAndUpdate({ id: req.body._id },
-        {$set:{ estado : false }}, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
-            if (err) {
-                return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'Ocurrió un error durante la actualización. ' + err
+app.post('/cursoIniciar', (req, res) => {
+    Usuario.find({rol : 'docente'}).exec((err, docentes) => {
+
+        let arregloDocentes = [];
+
+        function recursividadDocente(arreglo, index){
+            if(arreglo.length == 0){
+
+            } 
+
+            arregloDocentes.push({
+                nombre : arreglo[index].nombre,
+                idDocente : arreglo[index]._id
+            });
+
+            index++;
+
+            if(index < arreglo.length){
+                recursividadDocente(arreglo, index);
+            } else {
+                return res.render('iniciarCurso', {
+                    titulo : 'Curso',
+                    alert : false,
+                    alertType : 'alert-danger',
+                    mensaje : '',
+                    docentes : arregloDocentes,
+                    idCurso : req.body.id
                 });
             }
+        }
 
-            return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-success', 
-                mensaje : 'Se terminó el curso correctamente'
-            });
-        });
-
-    console.log(req.body); 
+        recursividadDocente(docentes, 0);
+    });
 });
 
 app.post('/cursoInscribir', (req, res) => {
@@ -357,12 +428,7 @@ app.post('/cursoInscribir', (req, res) => {
                 });
             }
 
-            return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-success', 
-                mensaje : 'El ususario ha sido inscrito correctamente'
-            });
+            return cursoMethod(req, res);
         })
     });
 });
@@ -420,11 +486,9 @@ app.post('/verInscritos', (req, res) => {
 });
 
 app.post('/eliminarInscripcion', (req, res) => {
-
-    console.log(req.body);
-    
     Inscripcion.deleteOne({ _id : req.body.id}, (err) => {
-
+        console.log('ingresa err' + err);
+        
         if(err){
             return res.render('curso', {
                 titulo : 'Curso',
@@ -433,14 +497,31 @@ app.post('/eliminarInscripcion', (req, res) => {
                 mensaje : 'Ocurrió un error al borrar la inscripción.'
             });
         }
-        return res.render('curso', {
-            titulo : 'curso',
-            alert : false,
-            alertType : 'alert-success',
-            mensaje : 'Se eliminó la inscripción'
-        });
+
+        return cursoMethod(req, res);
     });
 });
+
+app.post('/cursoIniciarDocente', (req, res) => {
+
+    console.log('req.body prueba: ' + JSON.stringify(req.body));
+    
+    Curso.findOneAndUpdate({ _id: req.body.idCurso },
+        {$set:{ estado : false, docente: req.body.idDocente }}, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
+            if (err) {
+                return res.render('curso', {
+                    titulo : 'Curso', 
+                    alert : true,
+                    alertType : 'alert-danger', 
+                    mensaje : 'Ocurrió un error durante la actualización. ' + err
+                });
+            }
+
+            return cursoMethod(req, res);
+        });
+});
+
+
 
 app.get('*', (req, res) => {
     res.render('indexpost', {

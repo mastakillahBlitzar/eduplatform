@@ -1,40 +1,41 @@
 {{>header}}
+<h1> Cursos disponibles</h1>
 {{#if isCoordinador}}
-<form action="/curso" method="POST" >
-    <div class="form-row">
-        <div class="col">
-            <label for="exampleInputEmail1">Nombre</label>
-            <input class="form-control" type="text" name="nombre" required>
-        </div>
-        <div class="col"></div>
+<form action="/curso" method="POST">
+  <div class="form-row">
+    <div class="col">
+      <label for="exampleInputEmail1">Nombre</label>
+      <input class="form-control" type="text" name="nombre" required>
     </div>
-    <div class="form-row">
-        <div class="col">
-            <label for="exampleInputEmail1">Descripción</label>
-            <textarea class="form-control" type="" name="descripcion" required></textarea>
-        </div>    
-        <div class="col">
-            <label for="exampleInputEmail1">Valor</label>
-            <input class="form-control" type="number" name="valor" required>
-        </div>
+    <div class="col"></div>
+  </div>
+  <div class="form-row">
+    <div class="col">
+      <label for="exampleInputEmail1">Descripción</label>
+      <textarea class="form-control" type="" name="descripcion" required></textarea>
     </div>
-    <div class="form-row">
-        <div class="col">
-            <label for="exampleInputEmail1">Modalidad</label>
-            <select class="form-control" name="modalidad" id="modalidad">
-                <option disabled selected value> -- select an option -- </option>
-                <option value="presencial">Presencial</option>
-                <option value="virtual">Virtual</option>
-            </select>
-        </div>
-        <div class="col">
-            <label for="exampleInputEmail1">Intensidad Horaria</label>
-            <input class="form-control" type="number" name="intensidadHoraria">
-        </div>
+    <div class="col">
+      <label for="exampleInputEmail1">Valor</label>
+      <input class="form-control" type="number" name="valor" required>
     </div>
-    <div class="form-group mb-2">
-        <button>Agregar curso</button>
-    </div>  
+  </div>
+  <div class="form-row">
+    <div class="col">
+      <label for="exampleInputEmail1">Modalidad</label>
+      <select class="form-control" name="modalidad" id="modalidad">
+        <option disabled selected value> -- select an option -- </option>
+        <option value="presencial">Presencial</option>
+        <option value="virtual">Virtual</option>
+      </select>
+    </div>
+    <div class="col">
+      <label for="exampleInputEmail1">Intensidad Horaria</label>
+      <input class="form-control" type="number" name="intensidadHoraria">
+    </div>
+  </div>
+  <div class="form-group mb-2">
+    <button>Agregar curso</button>
+  </div>
 </form>
 {{/if}}
 <table class="table">
@@ -46,38 +47,68 @@
       <th scope="col">Modalidad</th>
       <th scope="col"></th>
       {{#if isCoordinador}}
-        <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col"></th>
       {{/if}}
     </tr>
   </thead>
   <tbody>
-      {{#each cursosArray}}
-      <tr>
-          <td>{{nombre}}</td>
-          <td>{{descripcion}}</td>
-          <td>{{intensidad}}</td>
-          <td>{{modalidad}}</td>
-          {{#if ../isCoordinador}}
-          <td>
-              <form action="/cursoTerminar" method="POST" >
-                <button type="submit" class="btn btn-danger" name="id" value="{{_id}}">Terminar</button>
-              </form>
-            </td>
-            <td>
-              <form action="/verInscritos" method="POST" >
-                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
-              </form>
-          </td>
-          {{/if}}
-          {{#if ../isAspirante}}
-          <td>
-              <form action="/cursoInscribir" method="POST" >
-                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
-              </form>
-          </td>
-          {{/if}}
-      </tr>
-      {{/each}}
+    {{#each cursosArray}}
+    <tr>
+      <td>{{nombre}}</td>
+      <td>{{descripcion}}</td>
+      <td>{{intensidad}}</td>
+      <td>{{modalidad}}</td>
+      {{#if ../isCoordinador}}
+      <td>
+        <form action="/cursoIniciar" method="POST">
+          <button type="submit" class="btn btn-success" name="id" value="{{_id}}">Iniciar</button>
+        </form>
+      </td>
+      <td>
+        <form action="/verInscritos" method="POST">
+          <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
+        </form>
+      </td>
+      {{/if}}
+      {{#if ../isAspirante}}
+      <td>
+        <form action="/cursoInscribir" method="POST">
+          <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
+        </form>
+      </td>
+      {{/if}}
+    </tr>
+    {{/each}}
   </tbody>
 </table>
+{{#if isAspirante}}
+<h1> Inscripciones realizadas</h1>
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Nombre</th>
+      <th scope="col">Descripción</th>
+      <th scope="col">Intensidad</th>
+      <th scope="col">Modalidad</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each cursosInscritosArray}}
+    <tr>
+      <td>{{nombre}}</td>
+      <td>{{descripcion}}</td>
+      <td>{{intensidad}}</td>
+      <td>{{modalidad}}</td>
+      <td>
+        <form action="/eliminarInscripcion" method="POST">
+          <button type="submit" class="btn btn-danger" name="id" value="{{idInscripcion}}">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+{{/if}}
 {{>footer}}
