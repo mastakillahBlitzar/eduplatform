@@ -5,10 +5,12 @@
     <title>EduPlatform</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/css/main.css" type="text/css">
+    <link rel="stylesheet" href="/css/header.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 
 <body class="main-body">
-    <header>
+    <header style="text-align: center;">
         <h1> {{titulo}}</h1>
     </header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -21,32 +23,37 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="/index">Inicio</a>
                 </li>
-            {{#if isCoordinador}}
+                {{#if isCoordinador}}
                 <li class="nav-item">
                     <a class="nav-link" href="/usuario">Usuario</a>
                 </li>
-            {{/if}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/roles">Gestión de usuarios</a>
+                </li>
+                {{/if}}
 
-            {{#if sesion}}
+                {{#if sesion}}
                 <li class="nav-item">
                     <a class="nav-link" href="/curso">Curso</a>
                 </li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="/salir" method="GET">
-                <h3>{{nombre}}</h3>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="/salir" method="GET">
+                <div class="logout-comp">
+                    <h3 class="name">{{nombre}}</h3>
                     <button class="btn btn-primary my-2 my-sm-0" type="submit">Salir</button>
-                </form>
+                </div>
+            </form>
             {{else}}
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="/ingresar" method="POST">
-                    <input class="form-control mr-sm-2" type="text" name="correo" placeholder="Correo">
-                    <input class="form-control mr-sm-2" type="password" name="password" placeholder="contraseña">
-                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Ingresar</button>
-                </form>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="/ingresar" method="POST">
+                <input class="form-control mr-sm-2" type="text" name="correo" placeholder="Correo">
+                <input class="form-control mr-sm-2" type="password" name="password" placeholder="contraseña">
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Ingresar</button>
+            </form>
             {{/if}}
         </div>
     </nav>
-    
+
     {{#if alert}}
     <div class="alert {{{alertType}}}" role="alert">{{{mensaje}}}</div>
     {{/if}}

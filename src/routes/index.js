@@ -114,7 +114,7 @@ app.post('/eliminar', (req, res) => {
         });
 });
 
-app.post('/ingresar', (req, res) => {   
+app.post('/ingresar', (req, res) => {
     Usuario.findOne({ correo: req.body.correo }, (err, resultado) => {
         if (err) {
             return console.log('error');
@@ -131,12 +131,12 @@ app.post('/ingresar', (req, res) => {
 
                 res.locals.sesion = true;
 
-                if(resultado.rol == 'coordinador')
+                if (resultado.rol == 'coordinador')
                     res.locals.isCoordinador = true;
                 else
                     res.locals.isCoordinador = false;
 
-                if(resultado.rol == 'aspirante')
+                if (resultado.rol == 'aspirante')
                     res.locals.isAspirante = true;
                 else
                     res.locals.isAspirante = false;
@@ -148,17 +148,17 @@ app.post('/ingresar', (req, res) => {
                 return res.render('index', {
                     titulo: 'Inicio',
                     nombre: resultado.nombre,
-                    alert : true,
-                    alertType : 'alert-success', 
-                    mensaje : 'Bienvenido ' + resultado.nombre
+                    alert: true,
+                    alertType: 'alert-success',
+                    mensaje: 'Bienvenido ' + resultado.nombre
                 });
             }
 
             return res.render('index', {
                 Titulo: 'Inicio',
-                alert : true,
-                alertType : 'alert-danger', 
-                mensaje : 'El usuario no existe.'
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'El usuario no existe.'
             });
         }
 
@@ -175,145 +175,220 @@ app.get('/salir', (req, res) => {
 
 
 app.get('/usuario', (req, res) => {
-    return res.render('usuario', 
-    {
-        titulo : 'Crear usuario', 
-        alert : false,
-        alertType : 'alert-primary', 
-        mensaje : 'Este es el mensaje que se debe mostrar en el inicio'
+    return res.render('usuario',
+        {
+            titulo: 'Crear usuario',
+            alert: false,
+            alertType: 'alert-primary',
+            mensaje: 'Este es el mensaje que se debe mostrar en el inicio'
+        });
+});
+
+app.get('/roles', (req, res) => {
+    let users = [];
+    Usuario.find((err, usuarios) => {
+        if (err) {
+            console.log(err);
+        }
+        if (usuarios) {
+            console.log(usuarios);
+            usuarios.forEach((e) => {
+                users.push({
+                    name: e.nombre,
+                    email: e.correo,
+                    role: e.rol,
+                    inscripcion: e._id
+                });
+            });
+            return res.render('role-management', {
+                titulo: 'Gestion de Usuarios',
+                users
+            });
+        }
+        return res.render('role-management', {
+            error: 'Ha ocurrido un error en la consulta'
+        });
     });
 });
 
-app.post('/usuario', (req, res) => {
+app.post('/getInfoUser', (req, res) => {
+    console.log(req.body.id);
+    Usuario.findOne({ _id: req.body.id }, (err, user) => {
+        if (err) {
+            console.log(err);
+            return res.send({
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'Error en la consulta. Por favor intente de nuevo.',
+            });
+        }
+        if (!!user) {
+            return res.render('info-user', {
+                idNumber: user.documentoIdentidad,
+                email: user.correo,
+                name: user.nombre,
+                phone: user.telefono,
+                role: user.rol,
+                inscripcion: user._id
+            });
+        }
+        return res.send({
+            alert: true,
+            alertType: 'alert-danger',
+            mensaje: 'Error en la consulta. Por favor intente de nuevo.',
+        });
+    });
+});
 
-    Usuario.findOne({documentoIdentidad : req.body.documento}, (err, resultado) => {
-        if(err) {
+app.post('/edituser', (req, res) => {
+    console.log(req.body);
+    Usuario.findOneAndUpdate({ _id: req.body.id }, req.body, { new: true, runValidators: true, context: 'query' }, (err, user) => {
+        if (err) {
             return res.render('indexpost', {
                 titulo: 'Error 404'
             });
-        }   
+        }
+        if(!!user) {
+            console.log('succesds', user);
+            return res.render('indexpost',{
+                alert: true,
+                alertType: 'alert-success',
+                mensaje: 'Usuario editado.',
+            });
+        }
+    });
+})
 
-        if(resultado){
+app.post('/usuario', (req, res) => {
+
+    Usuario.findOne({ documentoIdentidad: req.body.documento }, (err, resultado) => {
+        if (err) {
             return res.render('indexpost', {
-                titulo : 'Crear usuario', 
-                alert : true,
-                alertType : 'alert-danger', 
-                mensaje : 'El usuario ya existe en la base de datos. Por favor, compruebe el número de cédula.',
-                'documentoIdentidad' : req.body.documento,
-                'nombre' : req.body.nombre,
-                'correo' : req.body.correo,
-                'telefono' : req.body.telefono,
-                'rol' : req.body.rol,
+                titulo: 'Error 404'
+            });
+        }
+
+        if (resultado) {
+            return res.render('indexpost', {
+                titulo: 'Crear usuario',
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'El usuario ya existe en la base de datos. Por favor, compruebe el número de cédula.',
+                'documentoIdentidad': req.body.documento,
+                'nombre': req.body.nombre,
+                'correo': req.body.correo,
+                'telefono': req.body.telefono,
+                'rol': req.body.rol,
                 'password': bcrypt.hashSync(req.body.password, 10)
             });
         }
 
 
-        let usuario  = new Usuario({
-            'documentoIdentidad' : req.body.documento,
-            'nombre' : req.body.nombre,
-            'correo' : req.body.correo,
-            'telefono' : req.body.telefono,
-            'rol' : req.body.rol,
+        let usuario = new Usuario({
+            'documentoIdentidad': req.body.documento,
+            'nombre': req.body.nombre,
+            'correo': req.body.correo,
+            'telefono': req.body.telefono,
+            'rol': req.body.rol,
             'password': bcrypt.hashSync(req.body.password, 10)
         });
 
         usuario.save((err, resultado) => {
             if (err) {
                 return res.render('usuario', {
-                    titulo : 'Crear usuario', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'Ocurrió un errro mientras se creaba el usuario. ' + err
+                    titulo: 'Crear usuario',
+                    alert: true,
+                    alertType: 'alert-danger',
+                    mensaje: 'Ocurrió un errro mientras se creaba el usuario. ' + err
                 });
             }
-    
+
             return res.render('usuario', {
-                titulo : 'Crear usuario', 
-                alert : true,
-                alertType : 'alert-success', 
-                mensaje : 'Se ha creado el usuario correctamente.'
+                titulo: 'Crear usuario',
+                alert: true,
+                alertType: 'alert-success',
+                mensaje: 'Se ha creado el usuario correctamente.'
             })
         });
     });
-}); 
+});
 
 
 app.get('/curso', (req, res) => {
     cursoMethod(req, res);
 });
 
-function cursoMethod(req, res){
-    Curso.find({estado : true}, function(err, cursos) {
+function cursoMethod(req, res) {
+    Curso.find({ estado: true }, function (err, cursos) {
 
         console.log('cursos:' + cursos);
-        
 
-        if(err){
+
+        if (err) {
             return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-danger', 
-                mensaje : 'Ocurrió un error en la consulta de los cursos'
+                titulo: 'Curso',
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'Ocurrió un error en la consulta de los cursos'
             });
         }
 
-        if(res.locals.isAspirante){
+        if (res.locals.isAspirante) {
             let incripcionCursos = [];
 
-            Inscripcion.find({idUsuario : req.usuario}).exec((err, inscripciones) => {
+            Inscripcion.find({ idUsuario: req.usuario }).exec((err, inscripciones) => {
 
-                if(err) {
+                if (err) {
                     return res.render('curso', {
-                        titulo : 'Curso', 
-                        alert : false,
-                        cursosArray : cursos
+                        titulo: 'Curso',
+                        alert: false,
+                        cursosArray: cursos
                     });
                 }
 
-               function recursividadInscripciones(arreglo, index){
-                Curso.findOne({_id : arreglo[index].idCurso}).exec((err, cursoEncontrado) => {
-                    if(err){
-                        return console.log('error en la consulta');    
-                    }
+                function recursividadInscripciones(arreglo, index) {
+                    Curso.findOne({ _id: arreglo[index].idCurso }).exec((err, cursoEncontrado) => {
+                        if (err) {
+                            return console.log('error en la consulta');
+                        }
 
-                    cursoEncontrado.idInscripcion = arreglo[index]._id;
+                        cursoEncontrado.idInscripcion = arreglo[index]._id;
 
-                    incripcionCursos.push(cursoEncontrado); 
-                    
-                    index++;
+                        incripcionCursos.push(cursoEncontrado);
 
-                    if(index < arreglo.length){
-                        recursividadInscripciones(arreglo, index);
-                    } else {
-                        return res.render('curso', {
-                            titulo : 'Curso', 
-                            alert : false,
-                            cursosArray : cursos,
-                            cursosInscritosArray : incripcionCursos
-                        });
-                    }
-                });
-             };
+                        index++;
 
-             if(inscripciones.length == 0){
-                return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : false,
-                    cursosArray : cursos,
-                    cursosInscritosArray : []
-                });
-             } else 
-                recursividadInscripciones(inscripciones, 0);
-             
-           }); 
+                        if (index < arreglo.length) {
+                            recursividadInscripciones(arreglo, index);
+                        } else {
+                            return res.render('curso', {
+                                titulo: 'Curso',
+                                alert: false,
+                                cursosArray: cursos,
+                                cursosInscritosArray: incripcionCursos
+                            });
+                        }
+                    });
+                };
+
+                if (inscripciones.length == 0) {
+                    return res.render('curso', {
+                        titulo: 'Curso',
+                        alert: false,
+                        cursosArray: cursos,
+                        cursosInscritosArray: []
+                    });
+                } else
+                    recursividadInscripciones(inscripciones, 0);
+
+            });
         } else {
             return res.render('curso', {
-                titulo : 'Curso', 
-                alert : false,
-                cursosArray : cursos
+                titulo: 'Curso',
+                alert: false,
+                cursosArray: cursos
             });
-        } 
+        }
     });
 }
 
@@ -321,9 +396,9 @@ app.post('/curso', (req, res) => {
     let modalidad = '';
     let body = JSON.parse(JSON.stringify(req.body));
 
-    if(body.hasOwnProperty('modalidad')){
-        console.log('tiene modalidad');        
-         modalidad = body.modalidad;
+    if (body.hasOwnProperty('modalidad')) {
+        console.log('tiene modalidad');
+        modalidad = body.modalidad;
     }
 
     let curso = new Curso({
@@ -331,24 +406,24 @@ app.post('/curso', (req, res) => {
         descripcion: body.descripcion,
         valor: body.valor,
         intensidadHoraria: body.intensidadHoraria,
-        modalidad : modalidad 
+        modalidad: modalidad
     });
-    
+
     curso.save((err, curso) => {
-        if(err){
+        if (err) {
             return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-danger', 
-                mensaje : 'Ocirrió un error mientras se creaba el curso. ' + err
+                titulo: 'Curso',
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'Ocirrió un error mientras se creaba el curso. ' + err
             });
         }
 
         return res.render('curso', {
-            titulo : 'Curso', 
-            alert : true,
-            alertType : 'alert-success', 
-            mensaje : 'Se creó el curso correctamente'
+            titulo: 'Curso',
+            alert: true,
+            alertType: 'alert-success',
+            mensaje: 'Se creó el curso correctamente'
         });
     });
 });
@@ -359,32 +434,32 @@ app.get('/cursoIniciar', (req, res) => {
 
 
 app.post('/cursoIniciar', (req, res) => {
-    Usuario.find({rol : 'docente'}).exec((err, docentes) => {
+    Usuario.find({ rol: 'docente' }).exec((err, docentes) => {
 
         let arregloDocentes = [];
 
-        function recursividadDocente(arreglo, index){
-            if(arreglo.length == 0){
+        function recursividadDocente(arreglo, index) {
+            if (arreglo.length == 0) {
 
-            } 
+            }
 
             arregloDocentes.push({
-                nombre : arreglo[index].nombre,
-                idDocente : arreglo[index]._id
+                nombre: arreglo[index].nombre,
+                idDocente: arreglo[index]._id
             });
 
             index++;
 
-            if(index < arreglo.length){
+            if (index < arreglo.length) {
                 recursividadDocente(arreglo, index);
             } else {
                 return res.render('iniciarCurso', {
-                    titulo : 'Curso',
-                    alert : false,
-                    alertType : 'alert-danger',
-                    mensaje : '',
-                    docentes : arregloDocentes,
-                    idCurso : req.body.id
+                    titulo: 'Curso',
+                    alert: false,
+                    alertType: 'alert-danger',
+                    mensaje: '',
+                    docentes: arregloDocentes,
+                    idCurso: req.body.id
                 });
             }
         }
@@ -394,37 +469,37 @@ app.post('/cursoIniciar', (req, res) => {
 });
 
 app.post('/cursoInscribir', (req, res) => {
-    Inscripcion.findOne({ idCurso : req.body.id, idUsuario : req.usuario },(err, inscripcion) =>{
-        if(err){
+    Inscripcion.findOne({ idCurso: req.body.id, idUsuario: req.usuario }, (err, inscripcion) => {
+        if (err) {
             return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-danger', 
-                mensaje : 'No se pudo hacer la inscripción del usuario. ' + err
+                titulo: 'Curso',
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'No se pudo hacer la inscripción del usuario. ' + err
             });
         }
 
-        if(!!inscripcion){
+        if (!!inscripcion) {
             return res.render('curso', {
-                titulo : 'Curso', 
-                alert : true,
-                alertType : 'alert-warning', 
-                mensaje : 'El usuario ya está iscrito.'
+                titulo: 'Curso',
+                alert: true,
+                alertType: 'alert-warning',
+                mensaje: 'El usuario ya está iscrito.'
             });
         }
 
         inscripcion = new Inscripcion({
-            idCurso : req.body.id,
-            idUsuario : req.usuario
+            idCurso: req.body.id,
+            idUsuario: req.usuario
         });
 
         inscripcion.save((err, inscrito) => {
-            if(err){
+            if (err) {
                 return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'No se pudo hacer la inscripción del usuario. ' + err
+                    titulo: 'Curso',
+                    alert: true,
+                    alertType: 'alert-danger',
+                    mensaje: 'No se pudo hacer la inscripción del usuario. ' + err
                 });
             }
 
@@ -436,65 +511,65 @@ app.post('/cursoInscribir', (req, res) => {
 
 app.post('/verInscritos', (req, res) => {
     var estudiantesInscritos = [];
-    Curso.findOne({_id : req.body.id}, function(err, curso) {
-        Inscripcion.find({idCurso : req.body.id}, function(err, inscripciones) {
-            if(err){
+    Curso.findOne({ _id: req.body.id }, function (err, curso) {
+        Inscripcion.find({ idCurso: req.body.id }, function (err, inscripciones) {
+            if (err) {
                 return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'Ocurrió un error en la consulta de los estudiantes inscritos'
+                    titulo: 'Curso',
+                    alert: true,
+                    alertType: 'alert-danger',
+                    mensaje: 'Ocurrió un error en la consulta de los estudiantes inscritos'
                 });
             }
 
-            if(!Object.keys(inscripciones).length){
+            if (!Object.keys(inscripciones).length) {
                 return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'No hay estudiantes inscritos al curso'
+                    titulo: 'Curso',
+                    alert: true,
+                    alertType: 'alert-danger',
+                    mensaje: 'No hay estudiantes inscritos al curso'
                 });
             }
-            
+
             function recursive(items, index) {
-                Usuario.findOne({_id : items[index].idUsuario}, (err, usuario) => {
+                Usuario.findOne({ _id: items[index].idUsuario }, (err, usuario) => {
                     estudiantesInscritos.push({
-                        documentoIdentidad : usuario.documentoIdentidad,
-                        nombre : usuario.nombre,
-                        inscripcion : items[index]._id
+                        documentoIdentidad: usuario.documentoIdentidad,
+                        nombre: usuario.nombre,
+                        inscripcion: items[index]._id
                     });
-                    
+
                     index++;
-                    
-                    if(index < inscripciones.length){
+
+                    if (index < inscripciones.length) {
                         recursive(items, index)
                     } else {
                         return res.render('estudiantesInscritos', {
-                            titulo : 'Estudiantes inscritos a: ' + curso.nombre,
-                            alert : false,
-                            alertType : 'alert-success',
-                            incripcionArray : estudiantesInscritos,
-                            mensaje : 'El ususario ha sido inscrito correctamente'
+                            titulo: 'Estudiantes inscritos a: ' + curso.nombre,
+                            alert: false,
+                            alertType: 'alert-success',
+                            incripcionArray: estudiantesInscritos,
+                            mensaje: 'El ususario ha sido inscrito correctamente'
                         });
                     }
                 });
             }
-            
+
             recursive(inscripciones, 0);
         });
     });
 });
 
 app.post('/eliminarInscripcion', (req, res) => {
-    Inscripcion.deleteOne({ _id : req.body.id}, (err) => {
+    Inscripcion.deleteOne({ _id: req.body.id }, (err) => {
         console.log('ingresa err' + err);
-        
-        if(err){
+
+        if (err) {
             return res.render('curso', {
-                titulo : 'Curso',
-                alert : false,
-                alertType : 'alert-danger',
-                mensaje : 'Ocurrió un error al borrar la inscripción.'
+                titulo: 'Curso',
+                alert: false,
+                alertType: 'alert-danger',
+                mensaje: 'Ocurrió un error al borrar la inscripción.'
             });
         }
 
@@ -505,15 +580,15 @@ app.post('/eliminarInscripcion', (req, res) => {
 app.post('/cursoIniciarDocente', (req, res) => {
 
     console.log('req.body prueba: ' + JSON.stringify(req.body));
-    
+
     Curso.findOneAndUpdate({ _id: req.body.idCurso },
-        {$set:{ estado : false, docente: req.body.idDocente }}, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
+        { $set: { estado: false, docente: req.body.idDocente } }, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
             if (err) {
                 return res.render('curso', {
-                    titulo : 'Curso', 
-                    alert : true,
-                    alertType : 'alert-danger', 
-                    mensaje : 'Ocurrió un error durante la actualización. ' + err
+                    titulo: 'Curso',
+                    alert: true,
+                    alertType: 'alert-danger',
+                    mensaje: 'Ocurrió un error durante la actualización. ' + err
                 });
             }
 

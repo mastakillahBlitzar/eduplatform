@@ -15,6 +15,9 @@ if( typeof localStorage === "undefined" || localStorage === null) {
 const dirPublic = path.join(__dirname, '../public');
 const dirNode_modules = path.join(__dirname, '../node_modules');
 
+console.log(dirPublic);
+
+
 app.use(express.static(dirPublic));
 app.use('/css', express.static(dirNode_modules + '/bootstrap/dist/css'));
 app.use('/js', express.static(dirNode_modules + '/jquery/dist'));
