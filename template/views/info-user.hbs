@@ -24,15 +24,16 @@
                     <label>Teléfono</label>
                     <input class="form-control" type="number" name="telefono" value="{{phone}}" required>
                 </div>
-
+                {{#if isNotCoordinador}}
                 <div class="form-group">
                     <label>Rol</label>
                     <select class="form-control" name="rol" id="rol" value>
-                        <option value='aspirante'>Aspirante</option>
-                        <option value='coordinador'>Coordinador</option>
-                        <option value='docente'>Docente</option>
+                        {{#each rolOptions}}
+                        <option value="{{value}}" {{#selected}}selected="selected"{{/selected}}>{{name}}</option>
+                        {{/each}}
                     </select>
                 </div>
+                {{/if}}
                 <div class="form-group">
                     <button type="submit" class="btn btn-dark" name="id" value="{{inscripcion}}">Editar</button>
                 </div>

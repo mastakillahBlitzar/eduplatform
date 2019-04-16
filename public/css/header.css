@@ -1,7 +1,12 @@
 .logout-comp{
     border: 1px solid gray;
     border-radius: 8px;
-    padding: 5px;
+    padding: 5px 10px;
+    margin-right: 15px;
+}
+
+.logout-comp > h3{
+    margin-bottom: 0;
 }
 
 .logout-comp .name{

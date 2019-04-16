@@ -33,6 +33,7 @@ const cursoSchema = new Schema({
     },
     docente : {
         type : String,
+        required: true,
         default: ''
     }
 });

@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
 
-if( typeof localStorage === "undefined" || localStorage === null) {
+if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
     localStorage = new LocalStorage('./scratch');
 }
@@ -21,7 +21,7 @@ console.log(dirPublic);
 app.use(express.static(dirPublic));
 app.use('/css', express.static(dirNode_modules + '/bootstrap/dist/css'));
 app.use('/js', express.static(dirNode_modules + '/jquery/dist'));
-app.use('/js', express.static(dirNode_modules + '/popper.js/dist'));
+//app.use('/js', express.static(dirNode_modules + '/popper.js/dist'));
 app.use('/js', express.static(dirNode_modules + '/bootstrap/dist/js'));
 
 /* app.use(session({
@@ -32,28 +32,33 @@ app.use('/js', express.static(dirNode_modules + '/bootstrap/dist/js'));
  */
 app.use((req, res, next) => {
     const token = localStorage.getItem('token');
-    if(token) {
+    if (token) {
         jwt.verify(token, 'tdea-virtual', (err, decoded) => {
-            
-            if(err) {
+
+            if (err) {
                 localStorage.removeItem('token');
             } else {
                 res.locals.sesion = true;
 
-                if(decoded.data.rol == 'coordinador')
+                if (decoded.data.rol == 'coordinador')
                     res.locals.isCoordinador = true;
                 else
                     res.locals.isCoordinador = false;
 
-                if(decoded.data.rol == 'aspirante')
+                if (decoded.data.rol == 'aspirante')
                     res.locals.isAspirante = true;
                 else
                     res.locals.isAspirante = false;
 
+                if (decoded.data.rol == 'docente')
+                    res.locals.isTeacher = true;
+                else
+                    res.locals.isTeacher = false;
+
                 res.locals.nombre = decoded.data.nombre;
                 req.usuario = decoded.data._id;
             }
-            
+
             return next();
         });
     } else {
@@ -61,12 +66,12 @@ app.use((req, res, next) => {
     }
 });
 
-app.use(bodyParser.urlencoded({extended : false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(require('./routes/index'));
 
-mongoose.connect(process.env.URLDB, {useNewUrlParser : true}), (err, result) => {
-    if(err){
+mongoose.connect(process.env.URLDB, { useNewUrlParser: true }), (err, result) => {
+    if (err) {
         return console.log(err);
     }
 

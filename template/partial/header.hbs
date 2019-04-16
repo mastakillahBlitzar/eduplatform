@@ -31,17 +31,25 @@
                     <a class="nav-link" href="/roles">Gestión de usuarios</a>
                 </li>
                 {{/if}}
-
+                {{#if isTeacher}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/getcoursebyteacher">Mis cursos</a>
+                </li>
+                {{else}}
                 {{#if sesion}}
                 <li class="nav-item">
-                    <a class="nav-link" href="/curso">Curso</a>
+                    <a class="nav-link" href="/curso">Cursos</a>
                 </li>
+                {{/if}}
+                {{/if}}
             </ul>
+            {{#if sesion}}
             <form class="form-inline my-2 my-lg-0" action="/salir" method="GET">
                 <div class="logout-comp">
                     <h3 class="name">{{nombre}}</h3>
-                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Salir</button>
                 </div>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Salir</button>
+
             </form>
             {{else}}
             </ul>

@@ -128,6 +128,7 @@ app.post('/ingresar', (req, res) => {
                 }, 'tdea-virtual', { expiresIn: '1h' });
 
                 localStorage.setItem('token', token);
+                localStorage.setItem('_id', resultado._id);
 
                 res.locals.sesion = true;
 
@@ -141,9 +142,13 @@ app.post('/ingresar', (req, res) => {
                 else
                     res.locals.isAspirante = false;
 
+                if (resultado.rol == 'docente')
+                    res.locals.isTeacher = true;
+                else
+                    res.locals.isTeacher = false;
+
                 res.locals.nombre = resultado.nombre;
                 req.usuario = resultado._id;
-
 
                 return res.render('index', {
                     titulo: 'Inicio',
@@ -197,6 +202,7 @@ app.get('/roles', (req, res) => {
                     name: e.nombre,
                     email: e.correo,
                     role: e.rol,
+                    phone: e.telefono,
                     inscripcion: e._id
                 });
             });
@@ -223,13 +229,29 @@ app.post('/getInfoUser', (req, res) => {
             });
         }
         if (!!user) {
+            let rolOptions = [
+                {
+                    value: 'aspirante',
+                    name: 'Aspirante',
+                    selected: user.rol === 'aspirante'
+                },
+                {
+                    value: 'docente',
+                    name: 'Docente',
+                    selected: user.rol === 'docente'
+                }
+            ];
+            let isNotCoordinador = user.rol !== 'coordinador';
             return res.render('info-user', {
                 idNumber: user.documentoIdentidad,
                 email: user.correo,
                 name: user.nombre,
                 phone: user.telefono,
                 role: user.rol,
-                inscripcion: user._id
+                inscripcion: user._id,
+                rolOptions,
+                isNotCoordinador,
+                titulo: `Editar usuario ${user._id}`
             });
         }
         return res.send({
@@ -248,9 +270,9 @@ app.post('/edituser', (req, res) => {
                 titulo: 'Error 404'
             });
         }
-        if(!!user) {
+        if (!!user) {
             console.log('succesds', user);
-            return res.render('indexpost',{
+            return res.render('indexpost', {
                 alert: true,
                 alertType: 'alert-success',
                 mensaje: 'Usuario editado.',
@@ -318,12 +340,39 @@ app.get('/curso', (req, res) => {
     cursoMethod(req, res);
 });
 
+app.get('/getcoursebyteacher', (req, res) => {
+    const id = localStorage.getItem('_id');
+    console.log('id teacher', id.toString());
+    Curso.find({ estado: true, docente: id.toString() }, (err, courses) => {
+        if (err) {
+            return res.render('curso', {
+                titulo: 'Curso',
+                alert: true,
+                alertType: 'alert-danger',
+                mensaje: 'Ocurrió un error en la consulta de los cursos'
+            });
+        }
+        console.log('cursos ->', courses);
+
+        if (!!courses) {
+            Usuario.findOne({ _id: id.toString() }, (err, user) => {
+                console.log(user);
+                courses.forEach(e => {
+                    e.nombreDocente = user.nombre;
+                });
+                return res.render('curso', {
+                    titulo: 'Curso',
+                    alert: false,
+                    cursosArray: courses
+                });
+            });
+        }
+    });
+});
+
 function cursoMethod(req, res) {
     Curso.find({ estado: true }, function (err, cursos) {
-
-        console.log('cursos:' + cursos);
-
-
+        console.log('cursos ------> ', cursos);
         if (err) {
             return res.render('curso', {
                 titulo: 'Curso',
@@ -351,9 +400,7 @@ function cursoMethod(req, res) {
                         if (err) {
                             return console.log('error en la consulta');
                         }
-
                         cursoEncontrado.idInscripcion = arreglo[index]._id;
-
                         incripcionCursos.push(cursoEncontrado);
 
                         index++;
@@ -361,11 +408,37 @@ function cursoMethod(req, res) {
                         if (index < arreglo.length) {
                             recursividadInscripciones(arreglo, index);
                         } else {
-                            return res.render('curso', {
-                                titulo: 'Curso',
-                                alert: false,
-                                cursosArray: cursos,
-                                cursosInscritosArray: incripcionCursos
+                            cursos.forEach((e, index) => {
+                                if (e.docente) {
+                                    Usuario.findOne({ _id: e.docente }, (err, teacher) => {
+                                        if (err) {
+                                            return console.log(err);
+                                        }
+                                        if (!!teacher) {
+                                            e.nombreDocente = teacher.nombre;
+                                        } else {
+                                            e.nombreDocente = 'Sin asignar';
+                                        }
+                                        if (index === cursos.length - 1) {
+                                            return res.render('curso', {
+                                                titulo: 'Curso',
+                                                alert: false,
+                                                cursosArray: cursos,
+                                                cursosInscritosArray: incripcionCursos
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    e.nombreDocente = 'Sin asignar';
+                                    if (index === cursos.length - 1) {
+                                        return res.render('curso', {
+                                            titulo: 'Curso',
+                                            alert: false,
+                                            cursosArray: cursos,
+                                            cursosInscritosArray: incripcionCursos
+                                        });
+                                    }
+                                }
                             });
                         }
                     });
@@ -383,11 +456,47 @@ function cursoMethod(req, res) {
 
             });
         } else {
-            return res.render('curso', {
-                titulo: 'Curso',
-                alert: false,
-                cursosArray: cursos
+            Usuario.find({ rol: 'docente' }, (err, teachers) => {
+                if (err) {
+                    return console.log('error --->', err);
+                }
+                console.log('teachers --->', teachers);
+                if (!!teachers) {
+                    cursos.forEach((e, index) => {
+                        if (e.docente) {
+                            Usuario.findOne({ _id: e.docente }, (err, teacher) => {
+                                if (err) {
+                                    return console.log(err);
+                                }
+                                if (!!teacher) {
+                                    e.nombreDocente = teacher.nombre;
+                                } else {
+                                    e.nombreDocente = 'Sin asignar';
+                                }
+                                if (index === cursos.length - 1) {
+                                    return res.render('curso', {
+                                        titulo: 'Curso',
+                                        alert: false,
+                                        cursosArray: cursos,
+                                        teachers
+                                    });
+                                }
+                            });
+                        } else {
+                            e.nombreDocente = 'Sin asignar';
+                            if (index === cursos.length - 1) {
+                                return res.render('curso', {
+                                    titulo: 'Curso',
+                                    alert: false,
+                                    cursosArray: cursos,
+                                    teachers
+                                });
+                            }
+                        }
+                    });
+                }
             });
+
         }
     });
 }
@@ -400,13 +509,14 @@ app.post('/curso', (req, res) => {
         console.log('tiene modalidad');
         modalidad = body.modalidad;
     }
-
+    console.log('docente', body.teacher);
     let curso = new Curso({
         nombre: body.nombre,
         descripcion: body.descripcion,
         valor: body.valor,
         intensidadHoraria: body.intensidadHoraria,
-        modalidad: modalidad
+        modalidad: modalidad,
+        docente: body.teacher
     });
 
     curso.save((err, curso) => {
@@ -536,7 +646,9 @@ app.post('/verInscritos', (req, res) => {
                     estudiantesInscritos.push({
                         documentoIdentidad: usuario.documentoIdentidad,
                         nombre: usuario.nombre,
-                        inscripcion: items[index]._id
+                        inscripcion: items[index]._id,
+                        correo: usuario.correo,
+                        telefono: usuario.telefono
                     });
 
                     index++;

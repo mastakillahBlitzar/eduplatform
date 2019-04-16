@@ -1,114 +1,140 @@
 {{>header}}
-<h1> Cursos disponibles</h1>
-{{#if isCoordinador}}
-<form action="/curso" method="POST">
-  <div class="form-row">
-    <div class="col">
-      <label for="exampleInputEmail1">Nombre</label>
-      <input class="form-control" type="text" name="nombre" required>
+<div class="container-fluid">
+  <h1> Cursos disponibles</h1>
+  <div class="row">
+    {{#if isCoordinador}}
+    <div class="col-sm-12 col-lg-8 offset-lg-2">
+      <form action="/curso" method="POST">
+
+        <div class="form-group">
+          <label for="exampleInputEmail1">Nombre</label>
+          <input class="form-control" type="text" name="nombre" required>
+        </div>
+
+
+        <div class="form-group">
+          <label for="exampleInputEmail1">Descripción</label>
+          <textarea class="form-control" type="" name="descripcion" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Valor</label>
+          <input class="form-control" type="number" name="valor" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exampleInputEmail1">Modalidad</label>
+          <select class="form-control" name="modalidad" id="modalidad">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="presencial">Presencial</option>
+            <option value="virtual">Virtual</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Intensidad Horaria</label>
+          <input class="form-control" type="number" name="intensidadHoraria">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Docente</label>
+          <select class="form-control" name="teacher" id="teacher" value required>
+            <option disabled selected value> -- select an option -- </option>
+            {{#each teachers}}
+            <option value="{{_id}}">{{nombre}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group mb-2">
+          <button type="submit" class="btn btn-primary">Agregar curso</button>
+        </div>
+      </form>
     </div>
-    <div class="col"></div>
-  </div>
-  <div class="form-row">
-    <div class="col">
-      <label for="exampleInputEmail1">Descripción</label>
-      <textarea class="form-control" type="" name="descripcion" required></textarea>
-    </div>
-    <div class="col">
-      <label for="exampleInputEmail1">Valor</label>
-      <input class="form-control" type="number" name="valor" required>
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="col">
-      <label for="exampleInputEmail1">Modalidad</label>
-      <select class="form-control" name="modalidad" id="modalidad">
-        <option disabled selected value> -- select an option -- </option>
-        <option value="presencial">Presencial</option>
-        <option value="virtual">Virtual</option>
-      </select>
-    </div>
-    <div class="col">
-      <label for="exampleInputEmail1">Intensidad Horaria</label>
-      <input class="form-control" type="number" name="intensidadHoraria">
-    </div>
-  </div>
-  <div class="form-group mb-2">
-    <button>Agregar curso</button>
-  </div>
-</form>
-{{/if}}
-<table class="table">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">Nombre</th>
-      <th scope="col">Descripción</th>
-      <th scope="col">Intensidad</th>
-      <th scope="col">Modalidad</th>
-      <th scope="col"></th>
-      {{#if isCoordinador}}
-      <th scope="col"></th>
-      <th scope="col"></th>
+    {{/if}}
+    <div class="col-12">
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Intensidad</th>
+            <th scope="col">Modalidad</th>
+            <th scope="col">Docente</th>
+            <th scope="col"></th>
+            {{#if isCoordinador}}
+            <th scope="col"></th>
+            <th scope="col"></th>
+            {{/if}}
+            {{#if isTeacher}}
+            <th scope="col"></th>
+            {{/if}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each cursosArray}}
+          <tr>
+            <td>{{nombre}}</td>
+            <td>{{descripcion}}</td>
+            <td>{{intensidad}}</td>
+            <td>{{modalidad}}</td>
+            <td>{{nombreDocente}}</td>
+            {{#if ../isCoordinador}}
+            <td>
+              <form action="/cursoIniciar" method="POST">
+                <button type="submit" class="btn btn-success" name="id" value="{{_id}}">Iniciar</button>
+              </form>
+            </td>
+            <td>
+              <form action="/verInscritos" method="POST">
+                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
+              </form>
+            </td>
+            {{/if}}
+            {{#if ../isAspirante}}
+            <td>
+              <form action="/cursoInscribir" method="POST">
+                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
+              </form>
+            </td>
+            {{/if}}
+            {{#if ../isTeacher}}
+            <td>
+              <form action="/verInscritos" method="POST">
+                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
+              </form>
+            </td>
+            {{/if}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{#if isAspirante}}
+      <h1> Inscripciones realizadas</h1>
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Intensidad</th>
+            <th scope="col">Modalidad</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each cursosInscritosArray}}
+          <tr>
+            <td>{{nombre}}</td>
+            <td>{{descripcion}}</td>
+            <td>{{intensidad}}</td>
+            <td>{{modalidad}}</td>
+            <td>
+              <form action="/eliminarInscripcion" method="POST">
+                <button type="submit" class="btn btn-danger" name="id" value="{{idInscripcion}}">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
       {{/if}}
-    </tr>
-  </thead>
-  <tbody>
-    {{#each cursosArray}}
-    <tr>
-      <td>{{nombre}}</td>
-      <td>{{descripcion}}</td>
-      <td>{{intensidad}}</td>
-      <td>{{modalidad}}</td>
-      {{#if ../isCoordinador}}
-      <td>
-        <form action="/cursoIniciar" method="POST">
-          <button type="submit" class="btn btn-success" name="id" value="{{_id}}">Iniciar</button>
-        </form>
-      </td>
-      <td>
-        <form action="/verInscritos" method="POST">
-          <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
-        </form>
-      </td>
-      {{/if}}
-      {{#if ../isAspirante}}
-      <td>
-        <form action="/cursoInscribir" method="POST">
-          <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
-        </form>
-      </td>
-      {{/if}}
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
-{{#if isAspirante}}
-<h1> Inscripciones realizadas</h1>
-<table class="table">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">Nombre</th>
-      <th scope="col">Descripción</th>
-      <th scope="col">Intensidad</th>
-      <th scope="col">Modalidad</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each cursosInscritosArray}}
-    <tr>
-      <td>{{nombre}}</td>
-      <td>{{descripcion}}</td>
-      <td>{{intensidad}}</td>
-      <td>{{modalidad}}</td>
-      <td>
-        <form action="/eliminarInscripcion" method="POST">
-          <button type="submit" class="btn btn-danger" name="id" value="{{idInscripcion}}">Eliminar</button>
-        </form>
-      </td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
-{{/if}}
+    </div>
+  </div>
+</div>
 {{>footer}}
