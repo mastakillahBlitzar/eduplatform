@@ -49,90 +49,95 @@
     </div>
     {{/if}}
     <div class="col-12">
-      <table class="table">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Intensidad</th>
-            <th scope="col">Modalidad</th>
-            <th scope="col">Docente</th>
-            <th scope="col"></th>
-            {{#if isCoordinador}}
-            <th scope="col"></th>
-            <th scope="col"></th>
-            {{/if}}
-            {{#if isTeacher}}
-            <th scope="col"></th>
-            {{/if}}
-          </tr>
-        </thead>
-        <tbody>
-          {{#each cursosArray}}
-          <tr>
-            <td>{{nombre}}</td>
-            <td>{{descripcion}}</td>
-            <td>{{intensidad}}</td>
-            <td>{{modalidad}}</td>
-            <td>{{nombreDocente}}</td>
-            {{#if ../isCoordinador}}
-            <td>
-              <form action="/cursoIniciar" method="POST">
-                <button type="submit" class="btn btn-success" name="id" value="{{_id}}">Iniciar</button>
-              </form>
-            </td>
-            <td>
-              <form action="/verInscritos" method="POST">
-                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
-              </form>
-            </td>
-            {{/if}}
-            {{#if ../isAspirante}}
-            <td>
-              <form action="/cursoInscribir" method="POST">
-                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
-              </form>
-            </td>
-            {{/if}}
-            {{#if ../isTeacher}}
-            <td>
-              <form action="/verInscritos" method="POST">
-                <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
-              </form>
-            </td>
-            {{/if}}
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+      <div class="table-responsive-md">
+        <table class="table table-striped">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Intensidad</th>
+              <th scope="col">Modalidad</th>
+              <th scope="col">Docente</th>
+              <th scope="col"></th>
+              {{#if isCoordinador}}
+              <th scope="col"></th>
+              <th scope="col"></th>
+              {{/if}}
+              {{#if isTeacher}}
+              <th scope="col"></th>
+              {{/if}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#each cursosArray}}
+            <tr>
+              <td>{{nombre}}</td>
+              <td>{{descripcion}}</td>
+              <td>{{intensidad}}</td>
+              <td>{{modalidad}}</td>
+              <td>{{nombreDocente}}</td>
+              {{#if ../isCoordinador}}
+              <td>
+                <form action="/cursoIniciar" method="POST">
+                  <button type="submit" class="btn btn-success" name="id" value="{{_id}}">Iniciar</button>
+                </form>
+              </td>
+              <td>
+                <form action="/verInscritos" method="POST">
+                  <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
+                </form>
+              </td>
+              {{/if}}
+              {{#if ../isAspirante}}
+              <td>
+                <form action="/cursoInscribir" method="POST">
+                  <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Inscribir</button>
+                </form>
+              </td>
+              {{/if}}
+              {{#if ../isTeacher}}
+              <td>
+                <form action="/verInscritos" method="POST">
+                  <button type="submit" class="btn btn-primary" name="id" value="{{_id}}">Ver inscritos</button>
+                </form>
+              </td>
+              {{/if}}
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
       {{#if isAspirante}}
       <h1> Inscripciones realizadas</h1>
-      <table class="table">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Intensidad</th>
-            <th scope="col">Modalidad</th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each cursosInscritosArray}}
-          <tr>
-            <td>{{nombre}}</td>
-            <td>{{descripcion}}</td>
-            <td>{{intensidad}}</td>
-            <td>{{modalidad}}</td>
-            <td>
-              <form action="/eliminarInscripcion" method="POST">
-                <button type="submit" class="btn btn-danger" name="id" value="{{idInscripcion}}">Eliminar</button>
-              </form>
-            </td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+      <div class="table-responsive-md">
+        <table class="table table-striped">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Intensidad</th>
+              <th scope="col">Modalidad</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each cursosInscritosArray}}
+            <tr>
+              <td>{{nombre}}</td>
+              <td>{{descripcion}}</td>
+              <td>{{intensidad}}</td>
+              <td>{{modalidad}}</td>
+              <td>
+                <form action="/eliminarInscripcion" method="POST">
+                  <button type="submit" class="btn btn-danger" name="id" value="{{idInscripcion}}">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
       {{/if}}
     </div>
   </div>

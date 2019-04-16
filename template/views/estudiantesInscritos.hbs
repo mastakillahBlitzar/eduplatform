@@ -5,12 +5,11 @@
       <tr>
         <th scope="col">Cedula</th>
         <th scope="col">Nombre</th>
-        {{#if isCoordinador}}
-        <th scope="col"></th>
-        {{/if}}
         {{#if isTeacher}}
         <th scope="col">Email</th>
         <th scope="col">Telefono</th>
+        {{else}}
+        <th scope="col"></th>
         {{/if}}
       </tr>
     </thead>
@@ -22,6 +21,12 @@
         {{#if ../isTeacher}}
         <td>{{correo}}</td>
         <td>{{telefono}}</td>
+        {{else}}
+        <td>
+          <form action="/eliminarInscripcion" method="POST">
+            <button type="submit" class="btn btn-danger" name="id" value="{{inscripcion}}">Eliminar</button>
+          </form>
+        </td>
         {{/if}}
       </tr>
       {{/each}}
