@@ -8,6 +8,9 @@ const Curso = require('../models/curso');
 const Inscripcion = require('../models/inscripcion');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const dirViews = path.join(__dirname, '../../template/views');
 const dirPartials = path.join(__dirname, '../../template/partial');
@@ -324,6 +327,16 @@ app.post('/usuario', (req, res) => {
                     mensaje: 'Ocurrió un errro mientras se creaba el usuario. ' + err
                 });
             }
+
+            const msg = {
+                to: req.body.correo,
+                from: 'juano.diy@gmail.com',
+                subject: 'Bienvenido',
+                text: req.body.nombre,
+                html: '<div>Un usuario se ha creado usando su correo electronico. Si no tiene conocimiento de esta solicitud por favor comuniquese con la entidad.</div><div><b>eduNinjas Inc.</b></div>'
+            }
+
+            sgMail.send(msg);
 
             return res.render('usuario', {
                 titulo: 'Crear usuario',
