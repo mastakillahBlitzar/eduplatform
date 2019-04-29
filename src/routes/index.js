@@ -9,6 +9,8 @@ const Inscripcion = require('../models/inscripcion');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sgMail = require('@sendgrid/mail');
+const multer = require('multer');
+const upload = multer({dest : 'upload/'});
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -199,7 +201,7 @@ app.get('/roles', (req, res) => {
             console.log(err);
         }
         if (usuarios) {
-            console.log(usuarios);
+
             usuarios.forEach((e) => {
                 users.push({
                     name: e.nombre,
@@ -221,7 +223,7 @@ app.get('/roles', (req, res) => {
 });
 
 app.post('/getInfoUser', (req, res) => {
-    console.log(req.body.id);
+
     Usuario.findOne({ _id: req.body.id }, (err, user) => {
         if (err) {
             console.log(err);
@@ -265,8 +267,7 @@ app.post('/getInfoUser', (req, res) => {
     });
 });
 
-app.post('/edituser', (req, res) => {
-    console.log(req.body);
+app.post('/edituser', upload.single('archivo'),(req, res) => {
     Usuario.findOneAndUpdate({ _id: req.body.id }, req.body, { new: true, runValidators: true, context: 'query' }, (err, user) => {
         if (err) {
             return res.render('indexpost', {
@@ -284,7 +285,10 @@ app.post('/edituser', (req, res) => {
     });
 })
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', upload.single('archivo'),(req, res) => {
+
+    console.log('ingresa');
+    
 
     Usuario.findOne({ documentoIdentidad: req.body.documento }, (err, resultado) => {
         if (err) {
@@ -355,7 +359,7 @@ app.get('/curso', (req, res) => {
 
 app.get('/getcoursebyteacher', (req, res) => {
     const id = localStorage.getItem('_id');
-    console.log('id teacher', id.toString());
+
     Curso.find({ estado: true, docente: id.toString() }, (err, courses) => {
         if (err) {
             return res.render('curso', {
@@ -365,11 +369,10 @@ app.get('/getcoursebyteacher', (req, res) => {
                 mensaje: 'Ocurrió un error en la consulta de los cursos'
             });
         }
-        console.log('cursos ->', courses);
 
         if (!!courses) {
             Usuario.findOne({ _id: id.toString() }, (err, user) => {
-                console.log(user);
+
                 courses.forEach(e => {
                     e.nombreDocente = user.nombre;
                 });
@@ -385,7 +388,7 @@ app.get('/getcoursebyteacher', (req, res) => {
 
 function cursoMethod(req, res) {
     Curso.find({ estado: true }, function (err, cursos) {
-        console.log('cursos ------> ', cursos);
+
         if (err) {
             return res.render('curso', {
                 titulo: 'Curso',
@@ -522,7 +525,7 @@ app.post('/curso', (req, res) => {
         console.log('tiene modalidad');
         modalidad = body.modalidad;
     }
-    console.log('docente', body.teacher);
+
     let curso = new Curso({
         nombre: body.nombre,
         descripcion: body.descripcion,
@@ -703,8 +706,6 @@ app.post('/eliminarInscripcion', (req, res) => {
 });
 
 app.post('/cursoIniciarDocente', (req, res) => {
-
-    console.log('req.body prueba: ' + JSON.stringify(req.body));
 
     Curso.findOneAndUpdate({ _id: req.body.idCurso },
         { $set: { estado: false, docente: req.body.idDocente } }, { new: true, runValidators: true, context: 'query' }, (err, resultado) => {
